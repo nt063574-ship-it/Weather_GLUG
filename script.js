@@ -1,0 +1,149 @@
+WEATHER_API_ENDPOINT = `https://api.openweathermap.org/data/2.5/weather?appid=9d3b9215fe9d5fa1c80be699deef74d4&units=metric&q=`;
+WEATHER_DATA_ENDPOINT = `https://api.openweathermap.org/data/2.5/forecast?appid=9d3b9215fe9d5fa1c80be699deef74d4&units=metric&q=`;
+
+const userlocation = document.getElementById("userlocation"),
+    converter = document.getElementById("converter"),
+    Forecast = document.querySelector(".Forecast"),
+    weatherIcon = document.querySelector(".weather-icon"),
+    date = document.querySelector(".date"),
+    temperture = document.querySelector(".temperature"),
+    feelslike = document.querySelector(".feelsLike"),
+    description = document.querySelector(".description"),
+    city = document.querySelector(".city"),
+    Hvalue = document.getElementById("Hvalue"),
+    WValue = document.getElementById("WValue"),
+    PValue = document.getElementById("PValue"),
+    SRValue = document.getElementById("SRvalue"),
+    SSetValue = document.getElementById("SSet"),
+    CValue = document.getElementById("CValue"),
+    UVValue = document.getElementById("UVValue");
+
+function finduserlocation() {
+    Forecast.innerHTML = "";
+    fetch(WEATHER_API_ENDPOINT + userlocation.value)
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data);
+            if (data.cod !== 200) {
+                alert(data.message);
+                return;
+            }
+            city.innerHTML = data.name + ", " + data.sys.country;
+            weatherIcon.style.background = `url(https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png)`;
+            fetch(WEATHER_DATA_ENDPOINT + data.name
+            ).then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    temperture.innerHTML = TemperatureConverter(data.list[0].main.temp);
+
+
+                    const option = {
+                        weekday: "long",
+                        month: "long",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                    };
+                    date.innerHTML = data.list[0].dt_txt;
+                    feelslike.innerHTML = "Feels Like" + TemperatureConverter(data.list[0].main.feels_like);
+
+                    description.innerHTML = `<i class="fa-brands fa-cloudversify"></i> &nbsp;` +
+                        data.list[0].weather[0].description;
+
+                    Hvalue.innerHTML = data.list[0].main.humidity + `<span>%</span>`;
+                    WValue.innerHTML = data.list[0].wind.speed + `<span>m/s</span>`;
+
+
+                    const option1 = {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                    };
+
+                    SRValue.innerHTML = SRValue.innerHTML = formatUnixTime(
+                        data.city.sunrise,
+                        data.city.timezone,
+                        { hour: "numeric", minute: "numeric", hour12: true }
+                    );
+                    SSetValue.innerHTML = formatUnixTime(
+                        data.city.sunset,
+                        data.city.timezone,
+                        { hour: "numeric", minute: "numeric", hour12: true }
+                    );
+                    CValue.innerHTML = data.list[0].clouds.all + `<span>%</span>`;
+                    UVValue.innerHTML = "N/A";
+                    PValue.innerHTML =
+                        data.list[0].main.pressure + `<span>hPa</span>`;
+                    const dailyMap = {};
+
+                    data.list.forEach((weather) => {
+                        console.log(weather);
+                        // let div = document.createElement('div');
+                        let dateKey = weather.dt_txt.split(" ")[0];
+
+                        if (!dailyMap[dateKey]) {
+                            dailyMap[dateKey] = {
+                                temp_min: weather.main.temp_min,
+                                temp_max: weather.main.temp_max,
+                                weather: weather.weather[0],
+                                dt_txt: weather.dt_txt
+                            };
+                        } else {
+                            dailyMap[dateKey].temp_min = Math.min(dailyMap[dateKey].temp_min, weather.main.temp_min);
+                            dailyMap[dateKey].temp_max = Math.max(dailyMap[dateKey].temp_max, weather.main.temp_max);
+                        }
+                    });
+                    Object.values(dailyMap).slice(0, 5).forEach((weather) => {
+                        console.log(weather);
+
+
+                        let div = document.createElement('div');
+
+                        let daily = new Date(weather.dt_txt).toLocaleDateString("en-US", { weekday: "long" });
+                        div.innerHTML += daily;
+
+                        div.innerHTML += `<img src="https://openweathermap.org/img/wn/${weather.weather.icon}@2x.png" />`;
+
+                        div.innerHTML += `<p class="forecast-desc">${weather.weather.description}</p>`;
+
+                        div.innerHTML += `<span>
+                           <span>${TemperatureConverter(weather.temp_max)}</span>  
+                        <span>${TemperatureConverter(weather.temp_min)}</span>
+                       </span>`;
+
+                        Forecast.append(div);
+
+
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching weather data:", error);
+                });
+        })
+        .catch((error) => {
+            console.error("Error fetching weather data:", error);
+        });
+
+
+    function formatUnixTime(epochTime, utcOffsetSeconds, options = {}) {
+        const date = new Date((epochTime + utcOffsetSeconds) * 1000);
+        return date.toLocaleTimeString([], { timeZone: "UTC", ...options });
+    }
+    function getLongFormatUnixTime(epochTime, utcOffsetSeconds, options) {
+        return formatUnixTime(epochTime, utcOffsetSeconds, options);
+    }
+
+    function TemperatureConverter(temp) {
+        let cTemp = Math.round(temp);
+        let message = "";
+        if (converter.value == "°C") {
+            message = cTemp + " <span>" + "\xB0C</span>";
+        } else {
+            var cTof = (cTemp * 9) / 5 + 32;
+            message = cTof + " <span>" + "\xB0F</span>";
+        }
+        return message;
+    }
+
+}
