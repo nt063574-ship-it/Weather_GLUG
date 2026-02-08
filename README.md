@@ -11,7 +11,7 @@ A sleek, responsive weather application built with vanilla web technologies. Get
 * **Smart Search:** Find weather data for any city worldwide.
 * **Responsive Design:** Fully optimized for mobile, tablet, and desktop screens.
 * **Dynamic Backgrounds:** (Optional: mention if your UI changes based on weather conditions like Rain/Sun).
-
+  
 ## 🛠️ Built With
 
 * **HTML5:** Semantic structure for the dashboard.

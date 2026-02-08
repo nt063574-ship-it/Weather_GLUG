@@ -147,3 +147,28 @@ function finduserlocation() {
     }
 
 }
+
+const toggle = document.getElementById("darkToggle");
+
+toggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+
+    if (document.body.classList.contains("dark")) {
+        toggle.classList.replace("fa-moon", "fa-sun");
+        localStorage.setItem("theme", "dark");
+    } else {
+        toggle.classList.replace("fa-sun", "fa-moon");
+        localStorage.setItem("theme", "light");
+    }
+});
+
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+    toggle.classList.replace("fa-moon", "fa-sun");
+}
+
+
+
+
+
+

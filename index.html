@@ -13,6 +13,10 @@
 
 <body>
     <div class="container">
+        <div class="header">
+            <i class="fa-solid fa-moon" id="darkToggle"></i>
+        </div>
+
         <div class="weather-input">
             <div class="input-group">
                 <input type="text" id="userlocation" placeholder="Input the city">
@@ -20,6 +24,7 @@
                     <option>°C</option>
                     <option>°F</option>
                 </select>
+
                 <i class="fa fa-search" onclick="finduserlocation()"></i>
             </div>
             <div class="weather-icon"></div>
@@ -75,6 +80,8 @@
             <h2 class="heading">Next 5 Days</h2>
             <div class="Forecast"></div>
         </div>
+
+    </div>
     </div>
 </body>
 
