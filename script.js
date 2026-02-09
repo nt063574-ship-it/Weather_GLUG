@@ -167,8 +167,43 @@ if (localStorage.getItem("theme") === "dark") {
     toggle.classList.replace("fa-moon", "fa-sun");
 }
 
+function getLiveLocationWeather() {
+    if (!navigator.geolocation) {
+        console.log("Geolocation not supported");
+        return;
+    }
 
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
 
+            getCityFromCoords(lat, lon);
+        },
+        (error) => {
+            console.log("Location permission denied");
+        }
+    );
+}
 
+async function getCityFromCoords(lat, lon) {
+    const apiKey = "9d3b9215fe9d5fa1c80be699deef74d4";
+    const url = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
 
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data && data.length > 0) {
+            const city = data[0].name;
+            document.getElementById("userlocation").value = city;
+            finduserlocation(); 
+        }
+    } catch (err) {
+        console.log("Error fetching city from coords");
+    }
+}
+window.addEventListener("load", () => {
+    getLiveLocationWeather();
+});
 
