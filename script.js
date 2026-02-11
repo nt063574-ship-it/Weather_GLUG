@@ -29,6 +29,10 @@ function finduserlocation() {
                 return;
             }
             city.innerHTML = data.name + ", " + data.sys.country;
+            const weatherMain = data.weather[0].main;
+
+
+            applyWeatherBackground(weatherMain);
             weatherIcon.style.background = `url(https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png)`;
             fetch(WEATHER_DATA_ENDPOINT + data.name
             ).then((response) => response.json())
@@ -138,10 +142,11 @@ function finduserlocation() {
         let cTemp = Math.round(temp);
         let message = "";
         if (converter.value == "°C") {
-            message = cTemp + " <span>" + "\xB0C</span>";
+            message = `<span class="temp-num">${cTemp}</span><span class="temp-unit">°C</span>`;
+
         } else {
             var cTof = (cTemp * 9) / 5 + 32;
-            message = cTof + " <span>" + "\xB0F</span>";
+            message = `<span class="temp-num">${cTof}</span><span class="temp-unit">°F</span>`;
         }
         return message;
     }
@@ -197,7 +202,7 @@ async function getCityFromCoords(lat, lon) {
         if (data && data.length > 0) {
             const city = data[0].name;
             document.getElementById("userlocation").value = city;
-            finduserlocation(); 
+            finduserlocation();
         }
     } catch (err) {
         console.log("Error fetching city from coords");
@@ -206,4 +211,39 @@ async function getCityFromCoords(lat, lon) {
 window.addEventListener("load", () => {
     getLiveLocationWeather();
 });
+
+
+
+
+function resetWeatherClasses() {
+    document.body.classList.remove(
+        "rainy",
+        "sunny",
+        "cloudy"
+    );
+}
+
+
+function applyWeatherBackground(weatherMain) {
+    resetWeatherClasses();
+
+    if (weatherMain === "Rain") {
+        document.body.classList.add("rainy");
+    }
+    else if (weatherMain === "Clear") {
+        document.body.classList.add("sunny");
+    }
+    else if (weatherMain === "Clouds") {
+        document.body.classList.add("cloudy");
+    }
+}
+const cityInput = document.getElementById("userlocation");
+
+cityInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        finduserlocation();
+    }
+});
+
+
 
